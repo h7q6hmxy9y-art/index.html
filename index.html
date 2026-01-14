@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pink Saver - Akıllı Kumbara</title>
+    <style>
+        :root { --p: #ff85a2; --bg: #fff5f7; --text: #4a4a4a; --gray: #e0e0e0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; padding: 20px; color: var(--text); }
+        .card { width: 100%; max-width: 400px; background: white; border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(255,133,162,0.15); text-align: center; }
+        .header { background: var(--p); color: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; }
+        #total { font-size: 32px; font-weight: bold; display: block; }
+        .goal-section { background: #fff; border: 1px dashed var(--p); border-radius: 15px; padding: 15px; margin-bottom: 20px; }
+        .progress-container { background: var(--gray); border-radius: 10px; height: 12px; margin: 10px 0; overflow: hidden; }
+        .progress-bar { background: var(--p); height: 100%; width: 0%; transition: 0.5s; }
+        input { width: 85%; padding: 12px; border: 2px solid #eee; border-radius: 12px; font-size: 16px; margin-bottom: 10px; outline: none; }
+        .btn { background: var(--p); color: white; border: none; padding: 15px; border-radius: 15px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; margin-bottom: 10px; }
+        .support-btn { background: #4CAF50; color: white; text-decoration: none; display: block; padding: 12px; border-radius: 12px; font-weight: bold; margin-top: 20px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <span>Toplam Tasarrufun</span>
+            <span id="total">₺0</span>
+        </div>
+        <div class="goal-section">
+            <span id="goal-text">Haftalık Hedef: ₺0</span>
+            <div class="progress-container"><div id="bar" class="progress-bar"></div></div>
+            <span id="percent">%0 tamamlandı</span>
+            <input type="number" id="goal-input" placeholder="Hedef Belirle" style="margin-top:10px; width:70%">
+            <button class="btn" style="padding:5px; font-size:12px; width:auto" onclick="setGoal()">Güncelle</button>
+        </div>
+        <p><strong>Bugün ne kadar kurtardın?</strong></p>
+        <input type="number" id="amt" placeholder="Örn: 200">
+        <button class="btn" onclick="add()">Kumbaraya At ✨</button>
+        
+        <a href="#" class="support-btn">☕ Bana Destek Ol (Kahve Ismarla)</a>
+    </div>
+
+    <script>
+        let t = parseFloat(localStorage.getItem('s_t')) || 0;
+        let g = parseFloat(localStorage.getItem('s_g')) || 0;
+        function ui() {
+            document.getElementById('total').innerText = '₺' + t;
+            document.getElementById('goal-text').innerText = 'Haftalık Hedef: ₺' + g;
+            let p = g > 0 ? Math.min((t / g) * 100, 100) : 0;
+            document.getElementById('bar').style.width = p + '%';
+            document.getElementById('percent').innerText = '%' + Math.round(p) + ' tamamlandı';
+        }
+        function setGoal() {
+            let val = parseFloat(document.getElementById('goal-input').value);
+            if(val > 0) { g = val; localStorage.setItem('s_g', g); ui(); }
+        }
+        function add() {
+            let a = parseFloat(document.getElementById('amt').value);
+            if(a > 0) { t += a; localStorage.setItem('s_t', t); ui(); document.getElementById('amt').value = ''; }
+        }
+        ui();
+    </script>
+</body>
+</html>
