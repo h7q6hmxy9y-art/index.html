@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pink Saver - Akıllı Kumbara</title>
+    <title>Pink Saver - Akıllı Karar Asistanı</title>
     <style>
         :root { --p: #ff85a2; --bg: #fff5f7; --text: #4a4a4a; --gray: #e0e0e0; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; padding: 20px; color: var(--text); }
@@ -13,9 +13,14 @@
         .goal-section { background: #fff; border: 1px dashed var(--p); border-radius: 15px; padding: 15px; margin-bottom: 20px; }
         .progress-container { background: var(--gray); border-radius: 10px; height: 12px; margin: 10px 0; overflow: hidden; }
         .progress-bar { background: var(--p); height: 100%; width: 0%; transition: 0.5s; }
+        
+        /* Soru Bölümü */
+        .quiz-area { background: #fffafb; border: 1px solid #ffeef2; border-radius: 15px; padding: 15px; margin-top: 15px; display: none; }
+        .question { font-weight: bold; margin-bottom: 10px; display: block; }
+        
         input { width: 85%; padding: 12px; border: 2px solid #eee; border-radius: 12px; font-size: 16px; margin-bottom: 10px; outline: none; }
         .btn { background: var(--p); color: white; border: none; padding: 15px; border-radius: 15px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; margin-bottom: 10px; }
-        .support-btn { background: #4CAF50; color: white; text-decoration: none; display: block; padding: 12px; border-radius: 12px; font-weight: bold; margin-top: 20px; font-size: 14px; }
+        .btn-opt { background: white; color: var(--p); border: 2px solid var(--p); padding: 8px; margin: 5px; width: 40%; }
     </style>
 </head>
 <body>
@@ -24,23 +29,40 @@
             <span>Toplam Tasarrufun</span>
             <span id="total">₺0</span>
         </div>
+
         <div class="goal-section">
             <span id="goal-text">Haftalık Hedef: ₺0</span>
             <div class="progress-container"><div id="bar" class="progress-bar"></div></div>
-            <span id="percent">%0 tamamlandı</span>
-            <input type="number" id="goal-input" placeholder="Hedef Belirle" style="margin-top:10px; width:70%">
-            <button class="btn" style="padding:5px; font-size:12px; width:auto" onclick="setGoal()">Güncelle</button>
+            <p id="percent" style="font-size: 12px;">%0 tamamlandı</p>
+            <input type="number" id="goal-input" placeholder="Hedef Belirle" style="width:60%">
+            <button onclick="setGoal()" style="background:var(--p); color:white; border:none; border-radius:5px; padding:5px 10px;">Ayarla</button>
         </div>
-        <p><strong>Bugün ne kadar kurtardın?</strong></p>
-        <input type="number" id="amt" placeholder="Örn: 200">
-        <button class="btn" onclick="add()">Kumbaraya At ✨</button>
-        
-        <a href="#" class="support-btn">☕ Bana Destek Ol (Kahve Ismarla)</a>
+
+        <div id="main-step">
+            <p><strong>Vazgeçtiğin harcama tutarı?</strong></p>
+            <input type="number" id="amt" placeholder="Örn: 500">
+            <button class="btn" onclick="startQuiz()">Sorgula ✨</button>
+        </div>
+
+        <div id="quiz-step" class="quiz-area">
+            <span class="question" id="q-text">Bu gerçekten bir ihtiyaç mı?</span>
+            <button class="btn btn-opt" onclick="nextQ(true)">Evet</button>
+            <button class="btn btn-opt" onclick="nextQ(false)">Hayır</button>
+        </div>
     </div>
 
     <script>
         let t = parseFloat(localStorage.getItem('s_t')) || 0;
         let g = parseFloat(localStorage.getItem('s_g')) || 0;
+        let currentAmt = 0;
+        let qIndex = 0;
+        const qs = [
+            "Bu gerçekten bir ihtiyaç mı yoksa anlık bir heves mi?",
+            "Bunu almasan hayatında ne eksilir?",
+            "Aynısından evde zaten yok mu?",
+            "Bu parayla gelecekte daha önemli bir şey alabilir misin?"
+        ];
+
         function ui() {
             document.getElementById('total').innerText = '₺' + t;
             document.getElementById('goal-text').innerText = 'Haftalık Hedef: ₺' + g;
@@ -48,13 +70,35 @@
             document.getElementById('bar').style.width = p + '%';
             document.getElementById('percent').innerText = '%' + Math.round(p) + ' tamamlandı';
         }
+
         function setGoal() {
             let val = parseFloat(document.getElementById('goal-input').value);
             if(val > 0) { g = val; localStorage.setItem('s_g', g); ui(); }
         }
-        function add() {
-            let a = parseFloat(document.getElementById('amt').value);
-            if(a > 0) { t += a; localStorage.setItem('s_t', t); ui(); document.getElementById('amt').value = ''; }
+
+        function startQuiz() {
+            currentAmt = parseFloat(document.getElementById('amt').value);
+            if(currentAmt > 0) {
+                document.getElementById('main-step').style.display = 'none';
+                document.getElementById('quiz-step').style.display = 'block';
+                qIndex = 0;
+                document.getElementById('q-text').innerText = qs[qIndex];
+            }
+        }
+
+        function nextQ(ans) {
+            qIndex++;
+            if(qIndex < qs.length) {
+                document.getElementById('q-text').innerText = qs[qIndex];
+            } else {
+                alert('Tebrikler! Mantıklı bir karar verdin.');
+                t += currentAmt;
+                localStorage.setItem('s_t', t);
+                document.getElementById('main-step').style.display = 'block';
+                document.getElementById('quiz-step').style.display = 'none';
+                document.getElementById('amt').value = '';
+                ui();
+            }
         }
         ui();
     </script>
